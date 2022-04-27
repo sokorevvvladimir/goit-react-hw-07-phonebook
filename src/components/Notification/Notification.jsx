@@ -5,7 +5,7 @@ const StyledNotification = styled.p`
 `;
 
 const Notification = () => {
-  return <StyledNotification>Nothing here so far...</StyledNotification>;
+  return <StyledNotification>Nothing here so far</StyledNotification>;
 };
 
 export default Notification;
