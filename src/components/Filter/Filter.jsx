@@ -34,7 +34,7 @@ const Filter = () => {
     dispatch(changeFilter(e.currentTarget.value));
   };
 
-  const { data } = useGetContactsByNameQuery(filter, {
+  useGetContactsByNameQuery(filter, {
     skip: filter === '',
   });
 
