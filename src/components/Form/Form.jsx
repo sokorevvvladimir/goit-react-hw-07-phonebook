@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
+// import { nanoid } from 'nanoid';
 import styled from 'styled-components';
-import { getContacts } from '../../redux/selectors';
-import { useSelector, useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
-import { addItem } from '../../redux/itemsSlice';
+import { useCreateContactMutation } from '../../redux/contactsSlice';
+import { useGetAllContactsQuery } from '../../redux/contactsSlice';
+import { Oval } from 'react-loader-spinner';
 
 const FormHtml = styled.form`
   border: 2px solid #000000;
@@ -25,7 +25,7 @@ const FormHtml = styled.form`
     width: 80%;
   };
   @media (min-width: 1024px) {
-    width: 30%;
+    width: 40%;
   })
 `;
 
@@ -52,6 +52,9 @@ const Button = styled.button`
   font-weight: 400;
   border-radius: 3px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
     background-color: #cde2e5;
@@ -70,9 +73,10 @@ const Button = styled.button`
 
 const ContactForm = () => {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const contacts = useSelector(getContacts);
-  const dispatch = useDispatch();
+  const [phone, setPhone] = useState('');
+  const { data } = useGetAllContactsQuery();
+  const contacts = data;
+  const [createContact, { isLoading }] = useCreateContactMutation();
 
   const onSameName = data => {
     return contacts.find(
@@ -81,7 +85,7 @@ const ContactForm = () => {
   };
 
   const onSamePhoneNumber = data => {
-    return contacts.find(({ number }) => number === data.number);
+    return contacts.find(({ phone }) => phone === data.phone);
   };
 
   const onFormSubmit = data => {
@@ -90,10 +94,12 @@ const ContactForm = () => {
       return;
     }
     if (onSamePhoneNumber(data)) {
-      toast.error(`Contact with ${data.number} number is already in contacts.`);
+      toast.error(`Contact with ${data.phone} number is already in contacts.`);
       return;
     }
-    dispatch(addItem(data));
+
+    createContact(data);
+    toast.success(`${data.name} added to your contacts!`);
     return;
   };
 
@@ -103,27 +109,23 @@ const ContactForm = () => {
       case 'name':
         setName(value);
         break;
-      case 'number':
-        setNumber(value);
+      case 'phone':
+        setPhone(value);
         break;
       default:
         return;
     }
   };
 
-  const objectCompiler = () => {
-    return { name, number, id: nanoid() };
-  };
-
   const onSubmitHandler = e => {
     e.preventDefault();
-    onFormSubmit(objectCompiler());
+    onFormSubmit({ name, phone });
     reset();
   };
 
   const reset = () => {
     setName('');
-    setNumber('');
+    setPhone('');
   };
 
   return (
@@ -142,18 +144,24 @@ const ContactForm = () => {
           />
         </Label>
         <Label>
-          Number
+          Phone
           <Input
             type="tel"
-            name="number"
-            value={number}
+            name="phone"
+            value={phone}
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
             required
             onChange={onInputHandler}
           />
         </Label>
-        <Button type="submit">Add contact</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <Oval color="#25515a" height={20} width={20} />
+          ) : (
+            'Add contact'
+          )}
+        </Button>
       </FormHtml>
     </>
   );

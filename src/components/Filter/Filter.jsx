@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { changeFilter, clearFilter } from '../../redux/filterSlice';
+import { changeFilter } from '../../redux/filterSlice';
 import { getFilter } from '../../redux/selectors';
+import { useGetContactsByNameQuery } from 'redux/contactsSlice';
 
 const Label = styled.label`
   display: flex;
@@ -21,7 +22,7 @@ const Input = styled.input`
     width: 80%;
   };
   @media (min-width: 1024px) {
-    width: 30%;
+    width: 40%;
   })
 `;
 
@@ -33,19 +34,14 @@ const Filter = () => {
     dispatch(changeFilter(e.currentTarget.value));
   };
 
-  const filterReset = () => {
-    dispatch(clearFilter());
-  };
+  const { data } = useGetContactsByNameQuery(filter, {
+    skip: filter === '',
+  });
 
   return (
     <Label>
       Find contacts by name
-      <Input
-        type="text"
-        value={filter}
-        onChange={onInputHandler}
-        onBlur={filterReset}
-      />
+      <Input type="text" value={filter} onChange={onInputHandler} />
     </Label>
   );
 };
