@@ -9,22 +9,15 @@ const BackdropDiv = styled.div`
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
-
-  &.isHidden {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &.isHidden .modal {
-    transform: translate(-50%, -50%) scale(0.8);
-  }
 `;
 
 const ContentDiv = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transform: translate(-50%, -50%) scale(1);
   transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 300px;
@@ -41,27 +34,16 @@ const ContentDiv = styled.div`
   };
   @media (min-width: 1024px) {
     width: 40%;
-  })
+  });
 `;
 
-const Modal = ({ isShown, onClose, children }) => {
+const Modal = ({ onClose, children }) => {
   const modalRoot = document.getElementById('modal-root');
   const handleBackdropClick = e => {
     if (e.currentTarget === e.target) {
       onClose();
     }
   };
-
-  useEffect(() => {
-    const backdrop = document.getElementById('backdrop');
-    const ToggleClass = () => {
-      if (isShown) {
-        backdrop.classList.remove('isHidden');
-        return;
-      }
-    };
-    ToggleClass();
-  }, [isShown]);
 
   useEffect(() => {
     const handleKeyDown = e => {
@@ -76,12 +58,8 @@ const Modal = ({ isShown, onClose, children }) => {
   }, [onClose]);
 
   return createPortal(
-    <BackdropDiv
-      className="isHidden"
-      id="backdrop"
-      onClick={handleBackdropClick}
-    >
-      <ContentDiv className="modal">{children}</ContentDiv>
+    <BackdropDiv onClick={handleBackdropClick}>
+      <ContentDiv>{children}</ContentDiv>
     </BackdropDiv>,
     modalRoot
   );
